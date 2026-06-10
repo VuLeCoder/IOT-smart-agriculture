@@ -2,8 +2,7 @@ package dto
 
 import "time"
 
-type SensorDataRequest struct {
-	APIKey       string  `json:"api_key" binding:"required"`
+type CreateSensorDataRequest struct {
 	RainLevel    float64 `json:"rain_level"`
 	Light        float64 `json:"light"`
 	SoilMoisture float64 `json:"soil_moisture"`

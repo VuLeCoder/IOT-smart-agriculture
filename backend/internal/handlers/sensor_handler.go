@@ -26,7 +26,7 @@ func CreateNewSensorHandler(sensorService services.ISensorService) *sensorHandle
 }
 
 func (h *sensorHandler) SaveData(c *gin.Context) {
-	var sensorDataReq dto.SensorDataRequest
+	var sensorDataReq dto.CreateSensorDataRequest
 
 	if err := c.ShouldBindJSON(&sensorDataReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{

@@ -16,7 +16,7 @@ var (
 )
 
 type ISensorService interface {
-	SaveData(ctx context.Context, deviceID uuid.UUID, sensorData dto.SensorDataRequest) (time.Time, error)
+	SaveData(ctx context.Context, deviceID uuid.UUID, sensorData dto.CreateSensorDataRequest) (time.Time, error)
 	GetData(ctx context.Context, deviceID uuid.UUID, number int) ([]dto.SensorDataResponse, error)
 }
 
@@ -30,7 +30,7 @@ func CreateNewSensorService(sensorRepo repositories.ISensorRepository) *sensorSe
 	}
 }
 
-func (s *sensorService) SaveData(ctx context.Context, deviceID uuid.UUID, sensorData dto.SensorDataRequest) (time.Time, error) {
+func (s *sensorService) SaveData(ctx context.Context, deviceID uuid.UUID, sensorData dto.CreateSensorDataRequest) (time.Time, error) {
 	sensorDataModel := models.SensorData{
 		DeviceID:     deviceID,
 		RainLevel:    sensorData.RainLevel,
