@@ -1,34 +1,26 @@
 package router
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
-	"github.com/jackc/pgx/v5/pgxpool"
 
-	"IOT-Smart-Agriculture/internal/config"
+	"IOT-Smart-Agriculture/internal/middlewares"
+	"IOT-Smart-Agriculture/utils/dependency"
 )
 
-type Router struct {
-	Config *config.Config
-	DB     *pgxpool.Pool
-}
-
-func Setup(cfg *config.Config, db *pgxpool.Pool) *gin.Engine {
+func Setup(di *dependency.DI) *gin.Engine {
 	r := gin.Default()
+	api := r.Group("/IOT-api")
 
-	r.GET("/health", func(c *gin.Context) {
-		if err := db.Ping(c.Request.Context()); err != nil {
-			c.JSON(http.StatusServiceUnavailable, gin.H{
-				"status": "database unavailable",
-			})
-			return
-		}
+	device := api.Group("/device")
+	device.Use(middlewares.DeviceAuthMiddleware(di.DeviceRepo))
+	{
+		device.POST("/sensor-data", di.SensorHandler.SaveData)
+	}
 
-		c.JSON(http.StatusOK, gin.H{
-			"status": "ok",
-		})
-	})
+	web := api.Group("/web")
+	{
+		web.GET("/devices/:deviceID/sensor-data", di.SensorHandler.GetData)
+	}
 
 	return r
 }
