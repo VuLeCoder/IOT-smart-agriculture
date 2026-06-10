@@ -10,7 +10,6 @@ import (
 )
 
 type ISensorRepository interface {
-	VerifyDeviceByKey(ctx context.Context, apiKey string) (uuid.UUID, error)
 	SaveSensorData(ctx context.Context, sensorData models.SensorData) error
 	GetLatestData(ctx context.Context, deviceID uuid.UUID) (dto.SensorDataResponse, error)
 	GetHistoryData(ctx context.Context, deviceID uuid.UUID, number int) ([]dto.SensorDataResponse, error)
@@ -27,13 +26,6 @@ func CreateNewSensorRepo(db *pgxpool.Pool) ISensorRepository {
 }
 
 const (
-	VERIFY_DEVICE_QUERY = `
-		select id
-		from devices
-		where api_key = $1
-		limit 1
-	`
-
 	SAVE_SENSOR_DATA = `
 		insert into sensor_data (id, device_id, rain_level, light, soil_moisture, ph, created_at)
 		values (default, $1, $2, $3, $4, $5, $6)
@@ -59,17 +51,6 @@ const (
 		limit $2
 	`
 )
-
-func (r *sensorRepo) VerifyDeviceByKey(ctx context.Context, apiKey string) (uuid.UUID, error) {
-	var deviceID uuid.UUID
-
-	err := r.db.QueryRow(ctx, VERIFY_DEVICE_QUERY, apiKey).Scan(&deviceID)
-	if err != nil {
-		return uuid.Nil, err
-	}
-
-	return deviceID, nil
-}
 
 func (r *sensorRepo) SaveSensorData(ctx context.Context, sensorData models.SensorData) error {
 
