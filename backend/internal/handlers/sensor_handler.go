@@ -30,7 +30,7 @@ func (h *sensorHandler) SaveData(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&sensorDataReq); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 
@@ -39,7 +39,7 @@ func (h *sensorHandler) SaveData(c *gin.Context) {
 	createAt, err := h.sensorService.SaveData(c.Request.Context(), deviceID, sensorDataReq)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
+			"error": err.Error(),
 		})
 	}
 
@@ -60,7 +60,14 @@ func (h *sensorHandler) GetData(c *gin.Context) {
 		return
 	}
 
-	deviceID := c.MustGet("deviceID").(uuid.UUID)
+	id := c.Param("deviceID")
+	deviceID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
 	sensorData, err := h.sensorService.GetData(c.Request.Context(), deviceID, number)
 	if err != nil {
