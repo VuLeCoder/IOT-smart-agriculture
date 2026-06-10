@@ -4,6 +4,7 @@ import (
 	"IOT-Smart-Agriculture/internal/config"
 	"IOT-Smart-Agriculture/internal/database"
 	"IOT-Smart-Agriculture/internal/router"
+	"IOT-Smart-Agriculture/migration"
 	"IOT-Smart-Agriculture/utils/dependency"
 	"log"
 )
@@ -22,6 +23,10 @@ func main() {
 	log.Println("Database connected")
 
 	defer db.Close()
+
+	if err := migration.Run(cfg.DatabaseURL); err != nil {
+		log.Fatal(err)
+	}
 
 	depInject := dependency.CreateNewDI(db)
 
