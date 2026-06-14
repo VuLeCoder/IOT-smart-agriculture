@@ -25,8 +25,8 @@ func CreateNewDeviceRepo(db *pgxpool.Pool) *deviceRepo {
 
 const (
 	ADD_DEVICE_QUERY = `
-		insert into devices (id, device_name, api_key, location, created_at)
-		values ($1, $2, $3, $4, $5)
+		insert into devices (id, user_id, device_name, api_key, location, created_at)
+		values ($1, $2, $3, $4, $5, $6)
 	`
 
 	VERIFY_DEVICE_QUERY = `
@@ -38,10 +38,9 @@ const (
 )
 
 func (r *deviceRepo) CreateDevice(ctx context.Context, device models.Device) error {
-
 	_, err := r.db.Exec(
 		ctx, ADD_DEVICE_QUERY,
-		device.ID, device.DeviceName, device.APIKey, device.Location, device.CreatedAt,
+		device.ID, device.UserID, device.DeviceName, device.APIKey, device.Location, device.CreatedAt,
 	)
 	return err
 }
@@ -55,4 +54,8 @@ func (r *deviceRepo) VerifyDeviceByKey(ctx context.Context, apiKey string) (uuid
 	}
 
 	return deviceID, nil
+}
+
+func (r *deviceRepo) GetDevicesByUser(ctx context.Context, userID uuid.UUID) error {
+	return nil
 }

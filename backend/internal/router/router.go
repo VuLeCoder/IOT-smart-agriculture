@@ -18,8 +18,19 @@ func Setup(di *dependency.DI) *gin.Engine {
 	}
 
 	web := api.Group("/web")
+	/*
+		web.POST("/register")
+		web.POST("/login")
+	*/
+
+	/*
+		web.Use(middlewares.UserAuthMiddleware())
+	*/
+	webDevices := web.Group("/devices")
 	{
-		web.GET("/devices/:deviceID/sensor-data", di.SensorHandler.GetData)
+		webDevices.POST("", di.DeviceHandler.CreateDevice)
+
+		webDevices.GET("/:deviceID/sensor-data", di.SensorHandler.GetData)
 	}
 
 	return r
