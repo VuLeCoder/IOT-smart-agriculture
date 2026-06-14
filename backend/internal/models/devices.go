@@ -8,6 +8,7 @@ import (
 
 type Device struct {
 	ID         uuid.UUID `db:"id"`
+	UserID     uuid.UUID `db:"user_id"`
 	DeviceName string    `db:"device_name"`
 	APIKey     string    `db:"api_key"`
 	Location   string    `db:"location"`
