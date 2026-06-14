@@ -5,14 +5,9 @@ import (
 	"IOT-Smart-Agriculture/internal/models"
 	"IOT-Smart-Agriculture/internal/repositories"
 	"context"
-	"errors"
 	"time"
 
 	"github.com/google/uuid"
-)
-
-var (
-	ErrInvalidNumber = errors.New("number must be between 1 and 100")
 )
 
 type ISensorService interface {
