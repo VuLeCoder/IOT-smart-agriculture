@@ -32,6 +32,7 @@ func (h *sensorHandler) SaveData(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		return
 	}
 
 	deviceID := c.MustGet("deviceID").(uuid.UUID)
