@@ -12,6 +12,8 @@ import (
 )
 
 type DI struct {
+	JWTService jwt.JWTService
+
 	DeviceRepo repositories.IDeviceRepository
 	SensorRepo repositories.ISensorRepository
 	UserRepo   repositories.IUserRepository
@@ -27,7 +29,7 @@ type DI struct {
 
 func CreateNewDI(db *pgxpool.Pool, cfg config.Config) *DI {
 
-	jwtService := jwt.CreateNewJWTService(cfg.JWTSecretKey, time.Duration(cfg.JWTExpireHours))
+	jwtService := jwt.CreateNewJWTService(cfg.JWTSecretKey, time.Duration(cfg.JWTExpireHours)*time.Hour)
 
 	deviceRepo := repositories.CreateNewDeviceRepo(db)
 	sensorRepo := repositories.CreateNewSensorRepo(db)
@@ -42,6 +44,8 @@ func CreateNewDI(db *pgxpool.Pool, cfg config.Config) *DI {
 	sensorHandler := handlers.CreateNewSensorHandler(sensorService)
 
 	return &DI{
+		JWTService: *jwtService,
+
 		DeviceRepo: deviceRepo,
 		SensorRepo: sensorRepo,
 		UserRepo:   userRepo,

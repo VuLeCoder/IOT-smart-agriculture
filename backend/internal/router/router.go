@@ -21,9 +21,7 @@ func Setup(di *dependency.DI) *gin.Engine {
 	web.POST("/register", di.AuthHandler.Register)
 	web.POST("/login", di.AuthHandler.Login)
 
-	/*
-		web.Use(middlewares.UserAuthMiddleware())
-	*/
+	web.Use(middlewares.UserAuthMiddleware(&di.JWTService))
 	webDevices := web.Group("/devices")
 	{
 		webDevices.POST("", di.DeviceHandler.CreateDevice)
