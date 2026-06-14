@@ -18,10 +18,8 @@ func Setup(di *dependency.DI) *gin.Engine {
 	}
 
 	web := api.Group("/web")
-	/*
-		web.POST("/register")
-		web.POST("/login")
-	*/
+	web.POST("/register", di.AuthHandler.Register)
+	web.POST("/login", di.AuthHandler.Login)
 
 	/*
 		web.Use(middlewares.UserAuthMiddleware())

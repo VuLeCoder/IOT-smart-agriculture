@@ -28,7 +28,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	depInject := dependency.CreateNewDI(db)
+	depInject := dependency.CreateNewDI(db, *cfg)
 
 	r := router.Setup(depInject)
 
