@@ -3,6 +3,7 @@ package handlers
 import (
 	"IOT-Smart-Agriculture/internal/dto"
 	"IOT-Smart-Agriculture/internal/services"
+	"IOT-Smart-Agriculture/utils/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,40 +28,32 @@ func (h *authHandler) Register(c *gin.Context) {
 	var registerReq dto.RegisterRequest
 
 	if err := c.ShouldBindJSON(&registerReq); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		response.Error(c, http.StatusBadRequest, "Invalid request payload", err)
 		return
 	}
 
 	registerResponse, err := h.authService.Register(c.Request.Context(), registerReq)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		response.Error(c, http.StatusBadRequest, "Registration failed", err)
 		return
 	}
 
-	c.JSON(http.StatusCreated, registerResponse)
+	response.Success(c, http.StatusCreated, "Registration successful", registerResponse)
 }
 
 func (h *authHandler) Login(c *gin.Context) {
 	var loginReq dto.LoginRequest
 
 	if err := c.ShouldBindJSON(&loginReq); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		response.Error(c, http.StatusBadRequest, "Invalid request payload", err)
 		return
 	}
 
 	loginResponse, err := h.authService.Login(c.Request.Context(), loginReq)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": err.Error(),
-		})
+		response.Error(c, http.StatusUnauthorized, "Login failed", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, loginResponse)
+	response.Success(c, http.StatusOK, "Login successful", loginResponse)
 }

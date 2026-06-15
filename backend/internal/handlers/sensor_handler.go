@@ -3,6 +3,7 @@ package handlers
 import (
 	"IOT-Smart-Agriculture/internal/dto"
 	"IOT-Smart-Agriculture/internal/services"
+	"IOT-Smart-Agriculture/utils/response"
 	"net/http"
 	"strconv"
 
@@ -29,9 +30,7 @@ func (h *sensorHandler) SaveData(c *gin.Context) {
 	var sensorDataReq dto.CreateSensorDataRequest
 
 	if err := c.ShouldBindJSON(&sensorDataReq); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		response.Error(c, http.StatusBadRequest, "Invalid request payload", err)
 		return
 	}
 
@@ -39,13 +38,11 @@ func (h *sensorHandler) SaveData(c *gin.Context) {
 
 	createAt, err := h.sensorService.SaveData(c.Request.Context(), deviceID, sensorDataReq)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		response.Error(c, http.StatusInternalServerError, "Failed to save sensor data", err)
+		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message":    "sensor data saved",
+	response.Success(c, http.StatusCreated, "Sensor data saved successfully", gin.H{
 		"created_at": createAt,
 	})
 }
@@ -55,31 +52,24 @@ func (h *sensorHandler) GetData(c *gin.Context) {
 
 	number, err := strconv.Atoi(numStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "number must be integer",
-		})
+		response.Error(c, http.StatusBadRequest, "Number must be an integer", err)
 		return
 	}
 
 	id := c.Param("deviceID")
 	deviceID, err := uuid.Parse(id)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		response.Error(c, http.StatusBadRequest, "Invalid device ID format", err)
 		return
 	}
 
 	sensorData, err := h.sensorService.GetData(c.Request.Context(), deviceID, number)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		response.Error(c, http.StatusBadRequest, "Failed to fetch sensor data", err)
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"message": "get data successful",
-		"data":    sensorData,
+	response.Success(c, http.StatusOK, "Sensor data retrieved successfully", gin.H{
+		"data": sensorData,
 	})
 }
