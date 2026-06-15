@@ -13,6 +13,7 @@ type IDeviceRepository interface {
 	CreateDevice(ctx context.Context, device models.Device) error
 	VerifyDeviceByKey(ctx context.Context, apiKey string) (uuid.UUID, error)
 	GetDevicesByUser(ctx context.Context, userID uuid.UUID) ([]dto.DeviceResponse, error)
+	GetDeviceByID(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) (dto.DeviceResponse, error)
 }
 
 type deviceRepo struct {
@@ -48,6 +49,19 @@ const (
 			created_at 
 		from devices
 		where user_id = $1
+	`
+
+	GET_DEVICE_BY_ID_QUERY = `
+		select 
+			id,
+			user_id,
+			api_key,
+			device_name,
+			location,
+			created_at 
+		from devices
+		where user_id = $1 and id = $2
+		limit 1
 	`
 )
 
@@ -96,4 +110,21 @@ func (r *deviceRepo) GetDevicesByUser(ctx context.Context, userID uuid.UUID) ([]
 	}
 
 	return listDevices, nil
+}
+
+func (r *deviceRepo) GetDeviceByID(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) (dto.DeviceResponse, error) {
+	var device dto.DeviceResponse
+
+	err := r.db.QueryRow(
+		ctx, GET_DEVICE_BY_ID_QUERY,
+		userID, deviceID,
+	).Scan(
+		&device.ID, &device.UserID, &device.APIKey,
+		&device.DeviceName, &device.Location, &device.CreatedAt,
+	)
+	if err != nil {
+		return dto.DeviceResponse{}, nil
+	}
+
+	return device, nil
 }

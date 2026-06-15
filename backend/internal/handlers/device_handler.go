@@ -12,6 +12,7 @@ import (
 type IDeviceHandler interface {
 	CreateDevice(c *gin.Context)
 	GetDevices(c *gin.Context)
+	GetDeviceByID(c *gin.Context)
 }
 
 type deviceHandler struct {
@@ -65,5 +66,32 @@ func (h *deviceHandler) GetDevices(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "get devices successful",
 		"devices": listDevices,
+	})
+}
+
+func (h *deviceHandler) GetDeviceByID(c *gin.Context) {
+
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	id := c.Param("deviceID")
+	deviceID, err := uuid.Parse(id)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	device, err := h.deviceService.GetDeviceByID(c.Request.Context(), userID, deviceID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "get device successful",
+		"device":  device,
 	})
 }

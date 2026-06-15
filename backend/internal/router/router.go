@@ -27,6 +27,8 @@ func Setup(di *dependency.DI) *gin.Engine {
 		webDevices.POST("", di.DeviceHandler.CreateDevice)
 		webDevices.GET("", di.DeviceHandler.GetDevices)
 
+		webDevices.GET("/:deviceID", di.DeviceHandler.GetDeviceByID)
+
 		webDevices.GET("/:deviceID/sensor-data", di.SensorHandler.GetData)
 	}
 
