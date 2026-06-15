@@ -7,9 +7,15 @@ import (
 )
 
 type CreateDeviceRequest struct {
-	APIKey     string    `json:"api_key" binding:"required"`
-	DeviceName string    `json:"device_name" binding:"required"`
-	Location   string    `json:"location"`
+	APIKey     string `json:"api_key" binding:"required"`
+	DeviceName string `json:"device_name" binding:"required"`
+	Location   string `json:"location"`
+}
+
+type UpdateDeviceRequest struct {
+	APIKey     *string `json:"api_key"`
+	DeviceName *string `json:"device_name"`
+	Location   *string `json:"location"`
 }
 
 type DeviceResponse struct {

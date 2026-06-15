@@ -14,6 +14,8 @@ type IDeviceRepository interface {
 	VerifyDeviceByKey(ctx context.Context, apiKey string) (uuid.UUID, error)
 	GetDevicesByUser(ctx context.Context, userID uuid.UUID) ([]dto.DeviceResponse, error)
 	GetDeviceByID(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) (dto.DeviceResponse, error)
+	UpdateDevice(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID, req dto.UpdateDeviceRequest) error
+	DeleteDevice(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) error
 }
 
 type deviceRepo struct {
@@ -62,6 +64,20 @@ const (
 		from devices
 		where user_id = $1 and id = $2
 		limit 1
+	`
+
+	UPDATE_DEVICE_QUERY = `
+		update devices
+		set 
+			api_key = coalesce($1, api_key), 
+			device_name = coalesce($2, device_name), 
+			location = coalesce($3, location)
+		where user_id = $4 and id = $5
+	`
+
+	DELETE_DEVICE_QUERY = `
+		delete from devices
+		where user_id = $1 and id = $2
 	`
 )
 
@@ -123,8 +139,22 @@ func (r *deviceRepo) GetDeviceByID(ctx context.Context, userID uuid.UUID, device
 		&device.DeviceName, &device.Location, &device.CreatedAt,
 	)
 	if err != nil {
-		return dto.DeviceResponse{}, nil
+		return dto.DeviceResponse{}, err
 	}
 
 	return device, nil
+}
+
+func (r *deviceRepo) UpdateDevice(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID, req dto.UpdateDeviceRequest) error {
+	_, err := r.db.Exec(
+		ctx, UPDATE_DEVICE_QUERY,
+		req.APIKey, req.DeviceName, req.Location,
+		userID, deviceID,
+	)
+	return err
+}
+
+func (r *deviceRepo) DeleteDevice(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) error {
+	_, err := r.db.Exec(ctx, DELETE_DEVICE_QUERY, userID, deviceID)
+	return err
 }

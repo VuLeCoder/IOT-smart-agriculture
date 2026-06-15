@@ -14,6 +14,8 @@ type IDeviceHandler interface {
 	CreateDevice(c *gin.Context)
 	GetDevices(c *gin.Context)
 	GetDeviceByID(c *gin.Context)
+	UpdateDeviceByID(c *gin.Context)
+	DeleteDeviceByID(c *gin.Context)
 }
 
 type deviceHandler struct {
@@ -82,4 +84,48 @@ func (h *deviceHandler) GetDeviceByID(c *gin.Context) {
 	response.Success(c, http.StatusOK, "Device details retrieved successfully", gin.H{
 		"device": device,
 	})
+}
+
+func (h *deviceHandler) UpdateDeviceByID(c *gin.Context) {
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	id := c.Param("deviceID")
+	deviceID, err := uuid.Parse(id)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid device ID format", err)
+		return
+	}
+
+	var updateReq dto.UpdateDeviceRequest
+	if err := c.ShouldBindJSON(&updateReq); err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid request payload", err)
+		return
+	}
+
+	err = h.deviceService.UpdateDevice(c.Request.Context(), userID, deviceID, updateReq)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to update device", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Device updated successfully", nil)
+}
+
+func (h *deviceHandler) DeleteDeviceByID(c *gin.Context) {
+	userID := c.MustGet("userID").(uuid.UUID)
+
+	id := c.Param("deviceID")
+	deviceID, err := uuid.Parse(id)
+	if err != nil {
+		response.Error(c, http.StatusBadRequest, "Invalid device ID format", err)
+		return
+	}
+
+	err = h.deviceService.DeleteDevice(c.Request.Context(), userID, deviceID)
+	if err != nil {
+		response.Error(c, http.StatusInternalServerError, "Failed to delete device", err)
+		return
+	}
+
+	response.Success(c, http.StatusOK, "Device deleted successfully", nil)
 }

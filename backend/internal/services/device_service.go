@@ -14,6 +14,8 @@ type IDeviceService interface {
 	CreateDevice(ctx context.Context, userID uuid.UUID, device dto.CreateDeviceRequest) (uuid.UUID, time.Time, error)
 	GetDevices(ctx context.Context, userID uuid.UUID) ([]dto.DeviceResponse, error)
 	GetDeviceByID(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) (dto.DeviceResponse, error)
+	UpdateDevice(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID, req dto.UpdateDeviceRequest) error
+	DeleteDevice(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) error
 }
 
 type deviceService struct {
@@ -60,4 +62,12 @@ func (s *deviceService) GetDeviceByID(ctx context.Context, userID uuid.UUID, dev
 	}
 
 	return device, nil
+}
+
+func (s *deviceService) UpdateDevice(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID, req dto.UpdateDeviceRequest) error {
+	return s.deviceRepo.UpdateDevice(ctx, userID, deviceID, req)
+}
+
+func (s *deviceService) DeleteDevice(ctx context.Context, userID uuid.UUID, deviceID uuid.UUID) error {
+	return s.deviceRepo.DeleteDevice(ctx, userID, deviceID)
 }

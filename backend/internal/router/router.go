@@ -28,8 +28,11 @@ func Setup(di *dependency.DI) *gin.Engine {
 		webDevices.GET("", di.DeviceHandler.GetDevices)
 
 		webDevices.GET("/:deviceID", di.DeviceHandler.GetDeviceByID)
+		webDevices.PATCH("/:deviceID", di.DeviceHandler.UpdateDeviceByID)
+		webDevices.DELETE("/:deviceID", di.DeviceHandler.DeleteDeviceByID)
 
 		webDevices.GET("/:deviceID/sensor-data", di.SensorHandler.GetData)
+
 	}
 
 	return r
