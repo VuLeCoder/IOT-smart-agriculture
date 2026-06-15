@@ -1,107 +1,89 @@
 # IOT Smart Agriculture Backend
 
-Hệ thống backend cho dự án Nông nghiệp Thông minh (Smart Agriculture), được xây dựng bằng ngôn ngữ **Go** và framework **Gin**.
+Hệ thống Backend cho dự án Nông nghiệp Thông minh (Smart Agriculture), hỗ trợ quản lý thiết bị IoT, thu thập dữ liệu cảm biến và cung cấp API cho Web.
 
-## Công nghệ sử dụng
+## 🚀 Giới thiệu
+Dự án được xây dựng dựa trên ngôn ngữ **Go** với kiến trúc **Clean Architecture**, tập trung vào hiệu suất, khả năng mở rộng và tính bảo mật. Hệ thống hỗ trợ hai luồng truy cập chính:
+- **Web API**: Dành cho người dùng quản lý, giám sát qua JWT Authentication.
+- **Device API**: Dành cho các thiết bị IoT gửi/nhận dữ liệu qua API Key.
 
-- **Ngôn ngữ:** Go (Golang) v1.25.0
-- **Web Framework:** [Gin Gonic](https://github.com/gin-gonic/gin)
-- **Cơ sở dữ liệu:** PostgreSQL
-- **Thư viện DB:** `pgx/v5`
-- **Migration:** `golang-migrate`
-- **Quản lý biến môi trường:** `godotenv`
+## 📋 Yêu cầu môi trường
+- **Go**: v1.25 trở lên.
+- **PostgreSQL**: v14 trở lên.
+- **Công cụ bổ sung**: `swag` (để cập nhật tài liệu API).
 
-## Cấu trúc thư mục
+## 🛠 Cài đặt & Chạy ứng dụng
 
-- `cmd/server/`: Điểm khởi đầu của ứng dụng (`main.go`).
-- `internal/`: Chứa mã nguồn logic nội bộ (handlers, services, repositories, models, dto, middlewares).
-- `migration/`: Các file SQL migration để khởi tạo và cập nhật cấu trúc DB.
-- `utils/`: Các tiện ích hỗ trợ như Dependency Injection.
+### 1. Clone repository
+```bash
+git clone <repository_url>
+cd IOT-Smart-Agriculture/backend
+```
 
-## Hướng dẫn cài đặt
+### 2. Cài đặt các package phụ thuộc
+```bash
+go mod tidy
+```
 
-### 1. Yêu cầu hệ thống
-- Go v1.25.0 trở lên.
-- PostgreSQL.
+### 3. Cấu hình biến môi trường
+Tạo file `.env` từ file mẫu:
+```bash
+cp .env.example .env
+```
+Sau đó cập nhật thông tin kết nối Database và JWT Secret trong file `.env`.
 
-### 2. Các bước cài đặt
-1. Truy cập vào thư mục backend:
-   ```bash
-   cd backend
-   ```
-2. Cài đặt các dependencies:
-   ```bash
-   go mod download
-   ```
-3. Cấu hình biến môi trường:
-   - Sao chép file `.env.example` thành `.env`:
-     ```bash
-     cp .env.example .env
-     ```
-   - Cập nhật các giá trị trong `.env`:
-     - `PORT`: Cổng chạy server (VD: 8080).
-     - `DATABASE_URL`: Đường dẫn kết nối Postgres (VD: `postgres://user:password@localhost:5432/dbname?sslmode=disable`).
-
-### 3. Khởi chạy ứng dụng
-Chạy lệnh sau để khởi động server:
+### 4. Chạy ứng dụng
+Hệ thống sẽ tự động chạy migration để khởi tạo các bảng cần thiết khi khởi động lần đầu.
 ```bash
 go run cmd/server/main.go
 ```
-*Lưu ý: Ứng dụng sẽ tự động chạy các file migration khi khởi động lần đầu.*
+Server sẽ mặc định chạy tại: `http://localhost:8080`
 
-## Tài liệu 2 API chính
+## 📂 Cấu trúc dự án
+Dự án tuân thủ cấu trúc Clean Architecture:
 
-Hệ thống cung cấp 2 luồng API chính: một cho các thiết bị IoT gửi dữ liệu và một cho ứng dụng Web lấy dữ liệu hiển thị.
+```text
+├── cmd/server/        # Điểm khởi đầu của ứng dụng (main.go)
+├── docs/              # Swagger documentation (tự động tạo bởi swag)
+├── internal/          # Code nghiệp vụ chính
+│   ├── config/        # Quản lý cấu hình (biến môi trường)
+│   ├── database/      # Kết nối cơ sở dữ liệu (Postgres)
+│   ├── dto/           # Data Transfer Objects (Request/Response)
+│   ├── handlers/      # Tầng giao diện API (nhận request, trả response)
+│   ├── middlewares/   # Xử lý trung gian (Auth, Log, v.v.)
+│   ├── models/        # Định nghĩa các thực thể (GORM/SQL models)
+│   ├── repositories/  # Tầng tương tác trực tiếp với Database
+│   ├── router/        # Định nghĩa các route API
+│   └── services/      # Tầng xử lý logic nghiệp vụ chính
+├── migration/         # Các file SQL migration
+├── utils/             # Các hàm tiện ích (JWT, Response wrapper, v.v.)
+└── .env               # File cấu hình môi trường (không commit)
+```
 
-### 1. API Gửi dữ liệu cảm biến (Dành cho thiết bị IoT)
+## 📝 Thử nghiệm API
 
-Dùng để các thiết bị cảm biến gửi dữ liệu định kỳ về server.
+### 1. Swagger UI
+Tài liệu API được tích hợp sẵn qua Swagger. Sau khi chạy server, bạn có thể truy cập tại:
+`http://localhost:8080/swagger/index.html`
 
-- **Endpoint:** `POST /IOT-api/device/sensor-data`
-- **Xác thực:** Yêu cầu Header `IOT-API-Key`.
-- **Định dạng Body (JSON):**
-  ```json
-  {
-    "rain_level": 15.5,
-    "light": 350.0,
-    "soil_moisture": 45.2,
-    "ph": 6.5
-  }
-  ```
-- **Phản hồi thành công:** `201 Created`
-  ```json
-  {
-    "message": "sensor data saved",
-    "created_at": "2023-10-27T10:00:00Z"
-  }
-  ```
+### 2. Xác thực (Authentication)
+Dự án hỗ trợ 2 phương thức xác thực:
+- **JWT (Bearer Auth)**:
+  - Sử dụng cho các đầu API `/web/...`.
+  - Header: `Authorization: Bearer <your_jwt_token>`
+  - Đăng nhập tại `/web/auth/login` để lấy token.
+- **API Key**:
+  - Sử dụng cho các đầu API `/device/...`.
+  - Header: `IOT-API-Key: <your_device_api_key>`
 
-### 2. API Lấy dữ liệu cảm biến (Dành cho Web Frontend)
+### 3. Cập nhật tài liệu Swagger
+Nếu bạn thay đổi code hoặc chú thích (comments) API, hãy chạy lệnh sau để cập nhật:
+```bash
+swag init -g cmd/server/main.go
+```
 
-Dùng để lấy lịch sử dữ liệu của một thiết bị cụ thể.
-
-- **Endpoint:** `GET /IOT-api/web/devices/:deviceID/sensor-data`
-- **Tham số:**
-  - `deviceID` (Path): UUID của thiết bị.
-  - `number` (Query - Tùy chọn): Số lượng bản ghi muốn lấy (mặc định là 1). VD: `?number=10`.
-- **Phản hồi thành công:** `200 OK`
-  ```json
-  {
-    "message": "get data successful",
-    "data": [
-      {
-        "rain_level": 15.5,
-        "light": 350.0,
-        "soil_moisture": 45.2,
-        "ph": 6.5,
-        "created_at": "2023-10-27T10:00:00Z"
-      }
-    ]
-  }
-  ```
-
-## Cách sử dụng
-
-1. **Đăng ký thiết bị:** Bạn cần có thông tin thiết bị trong bảng `devices` cùng với một `api_key` hợp lệ.
-2. **Gửi dữ liệu:** Sử dụng Postman hoặc thư viện HTTP trên vi điều khiển (ESP32/Arduino) để gửi POST request kèm `IOT-API-Key`.
-3. **Xem dữ liệu:** Truy cập thông qua endpoint web để lấy dữ liệu mới nhất phục vụ việc vẽ biểu đồ hoặc hiển thị lên Dashboard.
+## 🛡 Tính năng nổi bật
+- **Graceful Shutdown**: Đảm bảo đóng kết nối an toàn khi server dừng.
+- **Standardized Response**: Phản hồi API nhất quán theo định dạng chung.
+- **Partial Update**: Hỗ trợ cập nhật từng trường dữ liệu linh hoạt (PATCH).
+- **Automated Migration**: Tự động quản lý schema database.
