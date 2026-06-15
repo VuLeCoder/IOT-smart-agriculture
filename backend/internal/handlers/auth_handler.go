@@ -24,6 +24,18 @@ func CreateNewAuthHandler(authService services.IAuthService) IAuthHandler {
 	}
 }
 
+// Register godoc
+//
+// @Summary Đăng ký tài khoản
+// @Description Người dùng đăng ký tài khoản mới bằng email và mật khẩu
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body dto.RegisterRequest true "Thông tin đăng ký"
+// @Success 201 {object} response.Response{data=dto.RegisterResponse}
+// @Failure 400 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /IOT-api/web/register [post]
 func (h *authHandler) Register(c *gin.Context) {
 	var registerReq dto.RegisterRequest
 
@@ -41,6 +53,19 @@ func (h *authHandler) Register(c *gin.Context) {
 	response.Success(c, http.StatusCreated, "Registration successful", registerResponse)
 }
 
+// Login godoc
+//
+// @Summary Đăng nhập
+// @Description Người dùng đăng nhập để lấy JWT Token
+// @Tags Auth
+// @Accept json
+// @Produce json
+// @Param request body dto.LoginRequest true "Thông tin đăng nhập"
+// @Success 200 {object} response.Response{data=dto.LoginResponse}
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /IOT-api/web/login [post]
 func (h *authHandler) Login(c *gin.Context) {
 	var loginReq dto.LoginRequest
 

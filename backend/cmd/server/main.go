@@ -1,6 +1,25 @@
+// @title Smart Agriculture API
+// @version 1.0
+// @description Hệ thống quản lý và giám sát nông nghiệp thông minh qua IoT.
+// @contact.name API Support
+// @contact.email support@example.com
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8080
+// @BasePath /
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name IOT-API-Key
+
 package main
 
 import (
+	_ "IOT-Smart-Agriculture/docs"
 	"IOT-Smart-Agriculture/internal/config"
 	"IOT-Smart-Agriculture/internal/database"
 	"IOT-Smart-Agriculture/internal/router"

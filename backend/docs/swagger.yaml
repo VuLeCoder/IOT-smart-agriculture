@@ -1,0 +1,453 @@
+basePath: /
+definitions:
+  dto.CreateDeviceRequest:
+    properties:
+      api_key:
+        type: string
+      device_name:
+        type: string
+      location:
+        type: string
+    required:
+    - api_key
+    - device_name
+    type: object
+  dto.CreateSensorDataRequest:
+    properties:
+      light:
+        type: number
+      ph:
+        type: number
+      rain_level:
+        type: number
+      soil_moisture:
+        type: number
+    type: object
+  dto.DeviceResponse:
+    properties:
+      api_key:
+        type: string
+      created_at:
+        type: string
+      device_name:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LoginResponse:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      token:
+        type: string
+    type: object
+  dto.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.RegisterResponse:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+    type: object
+  dto.SensorDataResponse:
+    properties:
+      created_at:
+        type: string
+      light:
+        type: number
+      ph:
+        type: number
+      rain_level:
+        type: number
+      soil_moisture:
+        type: number
+    type: object
+  dto.UpdateDeviceRequest:
+    properties:
+      api_key:
+        type: string
+      device_name:
+        type: string
+      location:
+        type: string
+    type: object
+  response.Response:
+    properties:
+      data: {}
+      error:
+        type: string
+      message:
+        type: string
+      success:
+        type: boolean
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: support@example.com
+    name: API Support
+  description: Hệ thống quản lý và giám sát nông nghiệp thông minh qua IoT.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Smart Agriculture API
+  version: "1.0"
+paths:
+  /IOT-api/device/{deviceID}/sensor-data:
+    get:
+      consumes:
+      - application/json
+      description: Người dùng lấy các bản ghi dữ liệu gần nhất của một thiết bị
+      parameters:
+      - description: ID của thiết bị (UUID)
+        in: path
+        name: deviceID
+        required: true
+        type: string
+      - description: Số lượng bản ghi muốn lấy (mặc định 1)
+        in: query
+        name: number
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.SensorDataResponse'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Lấy lịch sử dữ liệu cảm biến
+      tags:
+      - Sensors
+  /IOT-api/device/sensor-data:
+    post:
+      consumes:
+      - application/json
+      description: Thiết bị gửi dữ liệu cảm biến (mưa, ánh sáng, độ ẩm, PH) về hệ
+        thống
+      parameters:
+      - description: Dữ liệu sensor
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateSensorDataRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Lưu dữ liệu cảm biến
+      tags:
+      - Sensors
+  /IOT-api/web/devices:
+    get:
+      consumes:
+      - application/json
+      description: Lấy danh sách tất cả thiết bị của người dùng hiện tại
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/dto.DeviceResponse'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Danh sách thiết bị
+      tags:
+      - Devices
+    post:
+      consumes:
+      - application/json
+      description: Người dùng thêm thiết bị (cảm biến) mới vào hệ thống
+      parameters:
+      - description: Thông tin thiết bị mới
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateDeviceRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Thêm thiết bị mới
+      tags:
+      - Devices
+  /IOT-api/web/devices/{deviceID}:
+    delete:
+      consumes:
+      - application/json
+      description: Xóa một thiết bị khỏi hệ thống
+      parameters:
+      - description: ID của thiết bị (UUID)
+        in: path
+        name: deviceID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Xóa thiết bị
+      tags:
+      - Devices
+    get:
+      consumes:
+      - application/json
+      description: Lấy thông tin chi tiết của một thiết bị theo ID
+      parameters:
+      - description: ID của thiết bị (UUID)
+        in: path
+        name: deviceID
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.DeviceResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Chi tiết thiết bị
+      tags:
+      - Devices
+    patch:
+      consumes:
+      - application/json
+      description: Cập nhật thông tin của một thiết bị (chỉ cập nhật các trường được
+        gửi)
+      parameters:
+      - description: ID của thiết bị (UUID)
+        in: path
+        name: deviceID
+        required: true
+        type: string
+      - description: Thông tin cập nhật
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateDeviceRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.Response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      security:
+      - BearerAuth: []
+      summary: Cập nhật thiết bị
+      tags:
+      - Devices
+  /IOT-api/web/login:
+    post:
+      consumes:
+      - application/json
+      description: Người dùng đăng nhập để lấy JWT Token
+      parameters:
+      - description: Thông tin đăng nhập
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.LoginResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Đăng nhập
+      tags:
+      - Auth
+  /IOT-api/web/register:
+    post:
+      consumes:
+      - application/json
+      description: Người dùng đăng ký tài khoản mới bằng email và mật khẩu
+      parameters:
+      - description: Thông tin đăng ký
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            allOf:
+            - $ref: '#/definitions/response.Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/dto.RegisterResponse'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.Response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.Response'
+      summary: Đăng ký tài khoản
+      tags:
+      - Auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: IOT-API-Key
+    type: apiKey
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

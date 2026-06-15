@@ -26,6 +26,20 @@ func CreateNewSensorHandler(sensorService services.ISensorService) *sensorHandle
 	}
 }
 
+// Save sensor data godoc
+//
+// @Summary Lưu dữ liệu cảm biến
+// @Description Thiết bị gửi dữ liệu cảm biến (mưa, ánh sáng, độ ẩm, PH) về hệ thống
+// @Tags Sensors
+// @Accept json
+// @Produce json
+// @Security ApiKeyAuth
+// @Param request body dto.CreateSensorDataRequest true "Dữ liệu sensor"
+// @Success 201 {object} response.Response
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /IOT-api/device/sensor-data [post]
 func (h *sensorHandler) SaveData(c *gin.Context) {
 	var sensorDataReq dto.CreateSensorDataRequest
 
@@ -47,6 +61,21 @@ func (h *sensorHandler) SaveData(c *gin.Context) {
 	})
 }
 
+// Get sensor data godoc
+//
+// @Summary Lấy lịch sử dữ liệu cảm biến
+// @Description Người dùng lấy các bản ghi dữ liệu gần nhất của một thiết bị
+// @Tags Sensors
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param deviceID path string true "ID của thiết bị (UUID)"
+// @Param number query int false "Số lượng bản ghi muốn lấy (mặc định 1)"
+// @Success 200 {object} response.Response{data=[]dto.SensorDataResponse}
+// @Failure 400 {object} response.Response
+// @Failure 401 {object} response.Response
+// @Failure 500 {object} response.Response
+// @Router /IOT-api/device/{deviceID}/sensor-data [get]
 func (h *sensorHandler) GetData(c *gin.Context) {
 	numStr := c.DefaultQuery("number", "1")
 

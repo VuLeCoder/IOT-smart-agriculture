@@ -2,6 +2,8 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"IOT-Smart-Agriculture/internal/middlewares"
 	"IOT-Smart-Agriculture/utils/dependency"
@@ -9,6 +11,9 @@ import (
 
 func Setup(di *dependency.DI) *gin.Engine {
 	r := gin.Default()
+
+	r.GET("/docs/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 	api := r.Group("/IOT-api")
 
 	device := api.Group("/device")
