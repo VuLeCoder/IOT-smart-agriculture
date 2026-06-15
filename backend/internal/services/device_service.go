@@ -32,7 +32,7 @@ func (s *deviceService) CreateDevice(ctx context.Context, userID uuid.UUID, devi
 		DeviceName: device.DeviceName,
 		APIKey:     device.APIKey,
 		Location:   device.Location,
-		CreatedAt:  device.CreatedAt,
+		CreatedAt:  time.Now(),
 	}
 
 	err := s.deviceRepo.CreateDevice(ctx, deviceModel)

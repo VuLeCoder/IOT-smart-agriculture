@@ -10,7 +10,6 @@ type CreateDeviceRequest struct {
 	APIKey     string    `json:"api_key" binding:"required"`
 	DeviceName string    `json:"device_name" binding:"required"`
 	Location   string    `json:"location"`
-	CreatedAt  time.Time `json:"created_at"`
 }
 
 type DeviceResponse struct {
