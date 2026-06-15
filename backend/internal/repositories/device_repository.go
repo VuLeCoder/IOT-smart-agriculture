@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"IOT-Smart-Agriculture/internal/dto"
 	"IOT-Smart-Agriculture/internal/models"
 	"context"
 
@@ -11,6 +12,7 @@ import (
 type IDeviceRepository interface {
 	CreateDevice(ctx context.Context, device models.Device) error
 	VerifyDeviceByKey(ctx context.Context, apiKey string) (uuid.UUID, error)
+	GetDevicesByUser(ctx context.Context, userID uuid.UUID) ([]dto.DeviceResponse, error)
 }
 
 type deviceRepo struct {
@@ -35,6 +37,18 @@ const (
 		where api_key = $1
 		limit 1
 	`
+
+	GET_DEVICE_BY_USER_QUERY = `
+		select 
+			id,
+			user_id,
+			api_key,
+			device_name,
+			location,
+			created_at 
+		from devices
+		where user_id = $1
+	`
 )
 
 func (r *deviceRepo) CreateDevice(ctx context.Context, device models.Device) error {
@@ -56,6 +70,30 @@ func (r *deviceRepo) VerifyDeviceByKey(ctx context.Context, apiKey string) (uuid
 	return deviceID, nil
 }
 
-func (r *deviceRepo) GetDevicesByUser(ctx context.Context, userID uuid.UUID) error {
-	return nil
+func (r *deviceRepo) GetDevicesByUser(ctx context.Context, userID uuid.UUID) ([]dto.DeviceResponse, error) {
+	rows, err := r.db.Query(ctx, GET_DEVICE_BY_USER_QUERY, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var listDevices []dto.DeviceResponse
+	for rows.Next() {
+		var device dto.DeviceResponse
+
+		err := rows.Scan(
+			&device.ID, &device.UserID, &device.APIKey,
+			&device.DeviceName, &device.Location, &device.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		listDevices = append(listDevices, device)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return listDevices, nil
 }

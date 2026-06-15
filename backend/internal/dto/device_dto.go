@@ -14,6 +14,7 @@ type CreateDeviceRequest struct {
 }
 
 type DeviceResponse struct {
+	ID         uuid.UUID `json:"id"`
 	UserID     uuid.UUID `json:"user_id"`
 	APIKey     string    `json:"api_key"`
 	DeviceName string    `json:"device_name"`

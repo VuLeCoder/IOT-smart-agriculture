@@ -12,6 +12,7 @@ import (
 
 type IDeviceService interface {
 	CreateDevice(ctx context.Context, userID uuid.UUID, device dto.CreateDeviceRequest) (uuid.UUID, time.Time, error)
+	GetDevices(ctx context.Context, userID uuid.UUID) ([]dto.DeviceResponse, error)
 }
 
 type deviceService struct {
@@ -40,4 +41,13 @@ func (s *deviceService) CreateDevice(ctx context.Context, userID uuid.UUID, devi
 	}
 
 	return deviceModel.ID, deviceModel.CreatedAt, nil
+}
+
+func (s *deviceService) GetDevices(ctx context.Context, userID uuid.UUID) ([]dto.DeviceResponse, error) {
+	listDevices, err := s.deviceRepo.GetDevicesByUser(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	return listDevices, nil
 }
