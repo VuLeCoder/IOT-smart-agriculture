@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"IOT-Smart-Agriculture/utils/jwt"
+	"IOT-Smart-Agriculture/utils/response"
 	"net/http"
 	"strings"
 
@@ -13,9 +14,8 @@ func UserAuthMiddleware(jwtService *jwt.JWTService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		auth := c.GetHeader("Authorization")
 		if !strings.HasPrefix(auth, "Bearer ") {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "missing or invalid authorization header",
-			})
+			response.Error(c, http.StatusUnauthorized, "Missing or invalid authorization header", nil)
+			c.Abort()
 			return
 		}
 
@@ -23,17 +23,15 @@ func UserAuthMiddleware(jwtService *jwt.JWTService) gin.HandlerFunc {
 
 		claims, err := jwtService.ValidateJWT(token)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": err.Error(),
-			})
+			response.Error(c, http.StatusUnauthorized, "Invalid or expired token", err)
+			c.Abort()
 			return
 		}
 
 		userID, err := uuid.Parse(claims.UserID)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid user id in token",
-			})
+			response.Error(c, http.StatusUnauthorized, "Invalid user ID in token", err)
+			c.Abort()
 			return
 		}
 

@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"IOT-Smart-Agriculture/internal/repositories"
+	"IOT-Smart-Agriculture/utils/response"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -13,17 +14,15 @@ func DeviceAuthMiddleware(deviceRepo repositories.IDeviceRepository) gin.Handler
 		apiKey := c.GetHeader("IOT-API-Key")
 
 		if apiKey == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "missing api key",
-			})
+			response.Error(c, http.StatusUnauthorized, "Missing API Key", nil)
+			c.Abort()
 			return
 		}
 
 		deviceID, err := deviceRepo.VerifyDeviceByKey(c.Request.Context(), apiKey)
 		if err != nil {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "invalid api key",
-			})
+			response.Error(c, http.StatusUnauthorized, "Invalid API Key", err)
+			c.Abort()
 			return
 		}
 
